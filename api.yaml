@@ -1,0 +1,856 @@
+openapi: 3.0.2
+info:
+  title: DBS Programmierpraktikum - Phase 4 - API-Spezifikation
+  description: >-
+    In der folgenden Liste finden Sie die <b>für die Anwendergruppen
+    spezifischen Grundfunktionalitäten</b>. Es müssen <b>alle folgenden
+    allgemeinen Bedingungen</b> eingehalten werden: <ul>
+      <li><b>Bei einer gültigen <code>GET</code>-Anfrage wird ein JSON-Array von JSON-Objekten, wobei ein JSON-Objekt eine Entität darstellt, zurückgegeben</b> und dies mit einem Code <code>200</code> belegt. Wird die <code>GET</code>-Anfrage auf einer nicht vorhandenen Ressource ausgeführt, so wird mit Code <code>404</code> geantwortet. Ist die Ressource woanders zu finden, wird dies mit dem Code <code>301</code> und dem Link im Header belegt. Eine <code>GET</code>-Anfrage auf einer Ressource, die eine Sammlung von Entitäten darstellt, kann durch Übergabe von bestimmten Parametern und dazugehörigen Werten <b>case-insensitive gefiltert</b> werden. Dabei muss jede Entität in der Sammlung allen Parametern gleichzeitig genügen. Die Sammlung wird in der Antwort in ein JSON-Array gekapselt.</li>
+      <li><b>Bei <code>POST</code>-Anfragen werden alle Parameter bis auf diejenigen Parameter der entsprechenden Ressource benötigt, die Standardwerte besitzen.</b> Wird die <code>POST</code>-Anfrage auf einer nicht vorhandenen Ressource ausgeführt, so wird mit Code <code>404</code> geantwortet. Ist die Ressource woanders zu finden, wird dies mit dem Code <code>301</code> und dem Link im Header belegt. Ist die Ressource vorhanden, aber die Anfragen wegen irgendeiner anderen Sache (ungültige Werte, zu wenig Parameter, ...) ungültig, so wird dies mit einem Code <code>400</code> beantwortet, ansonsten mit Code <code>201</code> und dem Link zur neuen Ressource im Header belegt (<b>Wichtiger Hinweis:</b> Sollte ein spezifischer Endpunkt in unserer API nicht vorhanden sein, kann eine fiktive Location zurückgegeben werden. Beispiel: ".../endpunkt/{id}", wobei {id} die <b>RowID</b> der neu angelegten Ressource ist).</li>
+      <li><b>Bei <code>PATCH</code>-Anfragen werden nur diejenigen Parameter benötigt, die geändert werden sollen, folglich mindestens einer.</b> Wird die <code>PATCH</code>-Anfrage auf einer nicht vorhandenen Ressource ausgeführt, so wird mit Code <code>404</code> geantwortet. Ist die Ressource vorhanden, aber die Anfragen wegen irgendeiner anderen Sache (ungültige Werte, ...) ungültig, so wird dies mit einem Code <code>400</code> beantwortet, anonsten mit Code <code>204</code> belegt.</li>
+      <li><b>Bei einer gültigen <code>DELETE</code>-Anfrage wird der Code <code>204</code> zurückgegeben.</b> Ist die Ressource nicht vorhanden, wird dies mit Code <code>404</code> belegt.</li>
+      <li><b>Bereiche mit einem Schlosssymbol werden durch eine HTTP-Basisauthentifizierung abgesichert.</b> Wird einer dieser Bereiche ohne oder mit falschen Anmeldedaten aufgerufen, so wird dies mit einem <code>401</code> und dem Header <code>WWW-Authenticate</code> belegt. Sind die Anmeldedaten richtig, aber der Anwender ist nicht authorisiert, so wird dies mit einem Code <code>403</code> belegt.</li>
+      <li><b>In Antworten mit Code <code>4xx</code> wird ein JSON-Objekt, das mindestens den Schlüssel <code>"message"</code> mit dem Wert <code>&lt;Fehlermeldung&gt;</code> enthält, zurückgegeben</b>, wobei <code>&lt;Fehlermeldung&gt;</code> eine für den Umstand entsprechende Fehlermeldung ist. Bei einer auftretenden Exception reicht dafür die Nachricht dieser.</li>
+      <li><b>Antworten auf gültige <code>POST</code>- und <code>PATCH</code>-Anfragen beinhalten nichts.</b></li>
+      <li><b>Anfragen sind vom Typ <code>multipart/form-data</code>, Antworten sind vom Typ <code>application/json;charset=UTF-8</code>.</b></li>
+      <li><b>Datums- und Zeitangaben werden im entsprechenden Standard-SQL-Format übertragen</b> (sowohl in der Anfrage, als auch in der Antwort).</li>
+      <li><b>Passwörter werden der Einfachheit halber im Klartext übergeben.</b></li>
+      <li><b><u>Die erwähnten bzw. alle IDs sind RowIDs!!!</u></b></li>
+    </ul>
+  version: 2020.WiSe.3
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /nutzer:
+    get:
+      tags:
+        - Anwender
+      summary: Gibt Nutzer zurück.
+      description: >-
+        Alle **Nutzer** werden zurückgegeben. Falls Query-Parameter mit Werten
+        angegeben wurden, wird die Rückgabe noch entsprechend gefiltert.
+      parameters:
+        - name: geschlecht
+          in: query
+          description: 'Nur Nutzer, deren **Geschlecht** `geschlecht` ist, werden zurückgegeben.'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        nutzerid:
+                          type: integer
+                          description: '**RowID des Nutzers**.'
+                      required:
+                        - nutzerid
+                    - $ref: '#/components/schemas/nutzer'
+    post:
+      tags:
+        - Anwender
+      summary: Fügt einen Nutzer hinzu.
+      description: >-
+        Ein **Nutzer** wird mit den entsprechenden Werten hinzugefügt.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/nutzer'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+  /redakteure:
+    get:
+      tags:
+        - Anwender
+      summary: Gibt Redakteure zurück.
+      description: >-
+        Alle **Redakteure** werden zurückgegeben. Falls Query-Parameter mit Werten
+        angegeben wurden, wird die Rückgabe noch entsprechend gefiltert.
+      parameters:
+        - name: nachname
+          in: query
+          description: 'Nur Redakteure, deren **Nachname** `nachname` enthält, werden zurückgegeben.'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        redakteurid:
+                          type: integer
+                          description: '**RowID des Redakteurs**.'
+                        nutzerid:
+                          type: integer
+                          description: '**RowID des Nutzers**.'
+                      required:
+                        - redakteurid
+                        - nutzerid
+                    - $ref: '#/components/schemas/redakteur'
+                    - $ref: '#/components/schemas/nutzer'
+    post:
+      tags:
+        - Anwender
+      summary: Fügt einen Redakteur hinzu.
+      description: >-
+        Ein **Redakteur** wird mit den entsprechenden Werten hinzugefügt. Ein zugeordneter Nutzer wird ebenfalls angelegt.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/redakteur'
+                - $ref: '#/components/schemas/nutzer'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+  /chefredakteure:
+    post:
+      tags:
+        - Anwender
+      summary: Fügt einen Chefredakteur hinzu.
+      description: >-
+        Ein **Chefredakteur** wird mit den entsprechenden Werten hinzugefügt. Ein zugeordneter Nutzer bzw. Redakteur wird ebenfalls angelegt.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/chefredakteur'
+                - $ref: '#/components/schemas/redakteur'
+                - $ref: '#/components/schemas/nutzer'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+  /alben:
+    get:
+      tags:
+        - Anwender
+      summary: Gibt Alben zurück.
+      description: >-
+        Alle **Alben** werden zurückgegeben. Falls Query-Parameter mit Werten
+        angegeben wurden, wird die Rückgabe noch entsprechend gefiltert.
+      parameters:
+        - name: titel
+          in: query
+          description: 'Nur Alben, deren **Titel** `titel` enthält, werden zurückgegeben.'
+          schema:
+            type: string
+        - name: schlagwort
+          in: query
+          description: 'Nur Alben, denen das **Schlagwort** `schlagwort` zugeordnet ist, werden zurückgegeben.'
+          schema:
+            type: string
+        - name: durchschnittsbewertung
+          in: query
+          description: 'Nur Alben, deren **Durchschnittsbewertung** >= `durchschnittsbewertung` ist, werden zurückgegeben.'
+          schema:
+            type: number
+            format: double
+        - name: erstellungsdatum
+          in: query
+          description: 'Nur Alben, deren **Erstellungsdatum** >= `erstellungsdatum` ist, werden zurückgegeben.'
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        blogeintragid:
+                          type: integer
+                          description: '**RowID des Blogeintrags**.'
+                        albumid:
+                          type: integer
+                          description: '**RowID des Albums**.'
+                      required:
+                        - blogeintragid
+                        - albumid
+                    - $ref: '#/components/schemas/blogeintrag'
+                    - $ref: '#/components/schemas/album'
+    post:
+      tags:
+        - Authentifizierter und als Redakteur authorisierter Anwender
+      summary: Ein Album wird hinzugefügt. 
+      description: >-
+        Ein **Album** wird hinzugefügt. Hierbei wird das **erste zugeordnete Bild** angegeben. Ein zugeordneter **Blogeintrag** wird ebenfalls angelegt.
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    bildid:
+                      type: integer
+                      description: '**RowID** des Bildes.'    
+                  required:
+                    - bildid              
+                - $ref: '#/components/schemas/album'
+                - $ref: '#/components/schemas/blogeintrag'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'                    
+  /produktrezensionen:
+    get:
+      tags:
+        - Anwender
+      summary: Gibt Produktrezensionen zurück.
+      description: >-
+        Alle **Produktrezensionen** werden zurückgegeben. Falls Query-Parameter mit Werten angegeben wurden, wird die Rückgabe noch entsprechend gefiltert.
+      parameters:
+        - name: fazit
+          in: query
+          description: 'Nur Produktrezensionen, deren **Fazit** `fazit` enthält, werden zurückgegeben.'
+          schema:
+            type: string
+        - name: beschreibung
+          in: query
+          description: 'Nur Produktrezensionen, deren **Produktbeschreibung** `beschreibung` enthält, werden zurückgegeben.'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        blogeintragid:
+                          type: integer
+                          description: '**RowID des Blogeintrags**.'
+                        produktrezensionid:
+                          type: integer
+                          description: '**RowID der Produktrezension**.'
+                      required:
+                        - produktrezensionid
+                        - blogeintragid
+                    - $ref: '#/components/schemas/produktrezension'
+    post:
+      tags:
+        - Authentifizierter und als Redakteur authorisierter Anwender
+      summary: Eine Produktrezension wird hinzugefügt.
+      description: >-
+        Eine **Produktrezension** wird hinzugefügt. Ein zugeordneter **Blogeintrag** wird ebenfalls angelegt.
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/produktrezension'
+                - $ref: '#/components/schemas/blogeintrag'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'                    
+  /kommentare:
+    get:
+      tags:
+        - Authentifizierter und als Nutzer authorisierter Anwender
+      summary: Gibt (eigene) Kommentare zurück.
+      security:
+        - basicAuth: []
+      description: >-
+        Alle **Kommentare** des Nutzers werden zurückgegeben. Falls Query-Parameter mit Werten angegeben wurden, wird die Rückgabe noch entsprechend gefiltert.
+      parameters:
+        - name: text
+          in: query
+          description: 'Nur Kommentare, deren **Text** `text` enthält, werden zurückgegeben.'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        kommentarid:
+                          type: integer
+                          description: '**RowID des Kommentars**.'
+                        nutzerid:
+                          type: integer
+                          description: '**RowID des Nutzers**.'
+                        blogeintragid:
+                          type: integer
+                          description: '**RowID des Blogeintrags**.'
+                      required:
+                        - kommentarid
+                        - nutzerid
+                        - blogeintragid
+                    - $ref: '#/components/schemas/kommentar'
+  /kommentare/{kommentarid}:
+    patch:
+      tags:
+        - Authentifizierter und als Nutzer authorisierter Anwender
+      security:
+        - basicAuth: []
+      summary: Ändert einen (eigenen) Kommentar.
+      description: >-
+        Der **Kommentar** wird gemäß der Query-Parameter geändert.
+      parameters:
+        - name: kommentarid
+          in: path
+          description: '**RowID** des Kommentars.'
+          schema:
+            type: integer
+          required: true
+        - name: text
+          in: query
+          description: '**Text** des Kommentars.'
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  /blogeintraege/{blogeintragid}/schlagworte:
+    post:
+      tags:
+        - Authentifizierter und als Redakteur authorisierter Anwender
+      summary: Fügt ein Schlagwort zu einem Blogeintrag hinzu.
+      description: >-
+        Ein **Schlagwort** wird zu einem Blogeintrag hinzugefügt.
+      security:
+        - basicAuth: []
+      parameters:
+        - name: blogeintragid
+          in: path
+          description: '**RowID** des Blogeintrags.'
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/schlagwort'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    get:
+      tags:
+        - Anwender
+      summary: Gibt die Schlagworte eines Blogeintrags zurück.
+      description: >-
+        Gibt alle **Schlagworte** eines Blogeintrags zurück.
+      parameters:
+        - name: blogeintragid
+          in: path
+          description: '**RowID** des Blogeintrags.'
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        schlagwortid:
+                          type: integer
+                          description: '**RowID des Schlagworts**.'
+                      required:
+                        - schlagwortid
+                    - $ref: '#/components/schemas/schlagwort'
+        '404':
+          $ref: '#/components/responses/404'
+  /blogeintraege/{blogeintragid}/bewertungen:
+    post:
+      tags:
+        - Authentifizierter und als Nutzer authorisierter Anwender
+      summary: Fügt eine Bewertung zu einem Blogeintrag hinzu.
+      description: >-
+        Eine **Bewertung** wird zu einem Blogeintrag hinzugefügt.
+      security:
+        - basicAuth: []
+      parameters:
+        - name: blogeintragid
+          in: path
+          description: '**RowID** des Blogeintrags.'
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/bewertung'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  /blogeintraege/{blogeintragid}/kommentare:
+    post:
+      tags:
+        - Authentifizierter und als Nutzer authorisierter Anwender
+      summary: Fügt einen Kommentar zu einem Blogeintrag hinzu.
+      description: >-
+        Ein **Kommentar** wird einem Blogeintrag hinzugefügt. Das **Erstellungsdatum** wird  mit dem aktuellen Zeitstempel belegt.
+      security:
+        - basicAuth: []
+      parameters:
+        - name: blogeintragid
+          in: path
+          description: '**RowID** des Blogeintrags.'
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                    - type: object
+                      properties:
+                        text:
+                          type: string
+                          description: '**Text des Kommentars**.'
+                      required:
+                        - text
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    get:
+      tags:
+        - Anwender
+      summary: Gibt Kommentare zu einem Blogeintrag zurück.
+      description: >-
+        Gibt alle **Kommentare** zu einem Blogeintrag zurück.
+      parameters:
+        - name: blogeintragid
+          in: path
+          description: '**RowID** des Blogeintrags.'
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        nutzerid:
+                          type: integer
+                          description: '**RowID des Nutzers**.'
+                        blogeintragid:
+                          type: integer
+                          description: '**RowID des Blogeintrags**.'
+                      required:
+                        - nutzerid
+                        - blogeintragid
+                    - $ref: '#/components/schemas/kommentar'
+        '404':
+          $ref: '#/components/responses/404'
+  /bilder:
+    get:
+      tags:
+        - Authentifizierter und als Redakteur authorisierter Anwender
+      summary: Gibt Bilder zurück.
+      description: >-
+        Alle **Bilder** werden zurückgegeben. Falls Query-Parameter mit Werten
+        angegeben wurden, wird die Rückgabe noch entsprechend gefiltert.
+      security:
+        - basicAuth: []
+      parameters:
+        - name: bezeichnung
+          in: query
+          description: 'Nur Bilder, deren **Bezeichnung** `bezeichnung` enthält, werden zurückgegeben.'
+          schema:
+            type: string
+        - name: aufnahmeort
+          in: query
+          description: 'Nur Bilder, deren **Aufnahmeort** `aufnahmeort` enthält, werden zurückgegeben.'
+          schema:
+            type: string            
+      responses:
+        '200':
+          description: '**OK**.'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        bildid:
+                          type: integer
+                          description: '**RowID des Bildes**.'
+                      required:
+                        - bildid
+                    - $ref: '#/components/schemas/bild'
+    post:
+      tags:
+        - Authentifizierter und als Redakteur authorisierter Anwender
+      summary: Fügt ein Bild hinzu.
+      description: >-
+        Ein **Bild** wird mit den entsprechenden Werten hinzugefügt.
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/bild'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '400':
+          $ref: '#/components/responses/400'  
+  '/bilder/{bildid}':
+    delete:
+      tags:
+        - Authentifizierter und als Redakteur authorisierter Anwender
+      security:
+        - basicAuth: []
+      summary: Löscht ein Bild.
+      description: Ein **Bild** wird entfernt.
+      parameters:
+        - name: bildid
+          in: path
+          description: '**RowID** des Bilds.'
+          schema:
+            type: integer
+          required: true
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+  '/blogeintraege/{blogeintragid}':
+    delete:
+      tags:
+        - Authentifizierter und als Chefredakteur authorisierter Anwender
+      security:
+        - basicAuth: []
+      summary: Löscht einen Blogeintrag.
+      description: Ein **Blogeintrag** wird entfernt. Ggf. existierende **referenzierende Tupel** werden ebenfalls gelöscht.
+      parameters:
+        - name: blogeintragid
+          in: path
+          description: '**RowID** des Blogeintrages.'
+          schema:
+            type: integer
+          required: true
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'        
+  '/alben/{albenid}':
+    patch:
+      tags:
+        - Authentifizierter und als Chefredakteur authorisierter Anwender
+      security:
+        - basicAuth: []
+      summary: Ändert ein Album.
+      description: Ein **Album** wird gemäß der Query-Parameter geändert. Das **Änderungsdatum** wird entsprechend aktualisiert.
+      parameters:
+        - name: albenid
+          in: path
+          description: '**RowID** des Albums.'
+          schema:
+            type: integer
+          required: true
+        - name: sichtbarkeit
+          in: query
+          description: >-
+            **Sichtbarkeits-Status** des Albums. Nicht sichtbar = false /
+            sichtbar = true.
+          schema:
+            type: boolean
+        - name: text
+          in: query
+          description: '**Text** des Albums'
+          schema:
+            type: string
+        - name: titel
+          in: query
+          description: '**Titel** des Albums'
+          schema:
+            type: string
+      responses:
+        '204':
+          $ref: '#/components/responses/204'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'          
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  responses:
+    '201':
+      description: '**Created**.'
+      headers:
+        Location:
+          description: Die URL der neuen Ressource. Siehe hierzu auch die Anmerkung bzgl. fiktiver Links im ersten Abschnitt.
+          schema:
+            type: string
+    '204':
+      description: '**No Content**.'
+    '301':
+      description: '**Moved Permanently**.'
+      headers:
+        Location:
+          description: Die URL der Ressource.
+          schema:
+            type: string
+    '400':
+      description: '**Bad Request**.'
+    '401':
+      description: '**Unauthorized**.'
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+    '403':
+      description: '**Forbidden**.'
+    '404':
+      description: '**Not Found**.'
+  schemas:
+    nutzer:
+      type: object
+      properties:
+        email:
+          type: string
+          description: '**E-Mail-Adresse** des Nutzers.'
+        passwort:
+          type: string
+          description: '**Passwort** des Nutzers.'
+        geschlecht:
+          type: string
+          description: '**Geschlecht** des Nutzers.'
+        benutzername:
+          type: string
+          description: '**Benutzername** des Nutzers.'
+        geburtsdatum:
+          type: string
+          format: date
+          description: '**Geburtsdatum** des Users im Format "YYYY-MM-DD".'
+      required:
+        - email
+        - benutzername
+        - passwort
+        - geburtsdatum
+        - geschlecht
+    redakteur:
+      type: object
+      properties:
+        vorname:
+          type: string
+          description: '**Vorname** des Redakteurs.'
+        nachname:
+          type: string
+          description: '**Nachname** des Redakteurs.'
+        biographie:
+          type: string
+          description: '**Biographie** des Redakteurs.'
+      required:
+        - vorname
+        - nachname
+    chefredakteur:
+      type: object
+      properties:
+        telefonnummer:
+          type: string
+          description: '**Telefonnummer** des Chefredakteur.'
+      required:
+        - telefonnummer
+    kommentar:
+      type: object
+      properties:
+        erstellungsdatum:
+          type: string
+          format: date-time
+          description: '**Erstellungsdatum** des Kommentars im Format "YYYY-MM-DD HH:MM:SS".'
+        text:
+          type: string
+          description: '**Text** des Kommentars.'
+      required:
+        - erstellungsdatum
+        - text
+    blogeintrag:
+      type: object
+      properties:
+        erstellungsdatum:
+          type: string
+          format: date-time
+          description: '**Erstellungsdatum** des Blogeintrags im Format "YYYY-MM-DD HH:MM:SS".'
+        aenderungsdatum:
+          type: string
+          format: date-time
+          description: '**Änderungsdatum** des Blogeintrags im Format "YYYY-MM-DD HH:MM:SS".'          
+        text:
+          type: string
+          description: '**Text** des Blogeintrags.'
+        titel:
+          type: string
+          description: '**Titel** des Blogeintrags.'
+      required:
+        - erstellungsdatum
+        - text
+        - titel
+    schlagwort:
+      type: object
+      properties:
+        bezeichnung:
+          type: string
+          description: '**Bezeichnung** des Schlagwortes.'
+      required:
+        - bezeichnung
+    bewertung:
+      type: object
+      properties:
+        punktzahl:
+          type: integer
+          description: '**Punktzahl** der Bewertung.'
+      required:
+        - punktzahl
+    bild:
+      type: object
+      properties:
+        pfad:
+          type: string
+          description: '**Dateipfad** des Bildes.'
+        bezeichnung:
+          type: string
+          description: '**Bezeichnung** des Bildes.'
+        aufnahmeort:
+          type: string
+          description: '**Aufnahmeort** des Bildes.'
+      required:
+        - pfad
+        - bezeichnung
+        - aufnahmeort
+    produktrezension:
+      type: object
+      properties:
+        beschreibung:
+          type: string
+          description: '**Beschreibung** der Produktrezension.'
+        fazit:
+          type: string
+          description: '**Fazit** der Produktrezension.'
+      required:
+        - beschreibung
+        - fazit
+    album:
+      type: object
+      properties:
+        sichtbarkeit:
+          type: boolean
+          description: '**Sichtbarkeit** des Albums.'
+      required:
+        - sichtbarkeit

@@ -1,0 +1,83 @@
+
+        // N U T Z E R
+curl -X GET "http://localhost:8080/nutzer" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X POST "http://localhost:8080/nutzer" -H "accept: */*" -H "Content-Type: multipart/form-data" -F "email=musterFrau6@mail.com" -F "passwort=pasAa1w5" -F "geschlecht=w" -F "benutzername=musterfrau4" -F "geburtsdatum=2000-11-11"
+curl -X GET "http://localhost:8080/nutzer?geschlecht=w" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+
+        // R E A D K T E U R E
+curl -X GET "http://localhost:8080/redakteure" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/redakteure?nachname=Zw" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X POST "http://localhost:8080/redakteure" -H "accept: */*" -H "Content-Type: multipart/form-data" -F "vorname=NeuerRedakteurin7" -F "nachname=NachnameNeuerRedakteurin7"  -F "biographie=Kurze Biographie" -F "email=Redakteurmusterfrau5@mail.com" -F "passwort=pasAa5" -F "geschlecht=w" -F "biographie=" -F "benutzername=musterfrau5" -F "geburtsdatum=2000-11-11"
+
+    // C H E R F E D A K T E U R
+
+//Chefredakteur hat keinen @GET
+curl -X POST "http://localhost:8080/chefredakteure" -H "accept: */*" -H "Content-Type: multipart/form-data" -F "telefonnummer=0211-551145633337890" -F "vorname=LatzterChfredakteur" -F "nachname=LatzterNachnameNeuerChefredakteur" -F "email=Chefredakteurmustermann7@mail.com" -F "passwort=ChefRpas7"  -F "geschlecht=m" -F "benutzername=Chefredakteurmustermam7" -F "geburtsdatum=2000-11-11"
+
+        // A B L E B
+curl -X GET "http://localhost:8080/alben" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+//Create Album funktioniert
+curl -X POST "http://localhost:8080/alben" -H "accept: */*" -H "Content-Type: multipart/form-data" -u RedakteurMustermann1@mail.com:RedpasAa1 -F "titel=CURLAlbum" -F "text=Ganz kreativer Text 1"  -F "erstellungsdatum=2021-11-11 10:10:11" -F "aenderungsdatum=2021-11-11 10:10:11" -F "sichtbarkeit=true" -F "bildid=7"
+curl -X GET "http://localhost:8080/alben?titel=oReM" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/alben?schlagwort=FiL&titel=oReM" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/alben?schlagwort=FiL" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/alben?erstellungsdatum=06" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/alben?durchschnittsbewertung=7" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X PATCH "http://localhost:8080/alben/5?" -u ChefredakteurMustermann1@mail.com:ChefRpas1 -H "accept: */*" -H "Content-Type: multipart/form-data" -F "titel=Ein Hacker hat zum 2. Mal den Titel geaendert!."
+
+
+
+// P R O D U K T R E Z E N S I O N E N
+curl -X GET "http://localhost:8080/produktrezensionen" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/produktrezensionen?fazit=sCh" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/produktrezensionen?beschreibung=AP" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+//funktioniert
+curl -X POST "http://localhost:8080/produktrezensionen" -H "accept: */*" -H "Content-Type: multipart/form-data" -u RedakteurMustermann1@mail.com:RedpasAa1 -F "titel=Test_1 spechere Produktrezension durch API" -F "text=Text von der API-Produktrezension1"  -F "erstellungsdatum=2021-06-22 10:10:11" -F "aenderungsdatum=2021-11-11 10:10:11" -F "beschreibung=Test 1 Rezension durch API" -F "fazit=geschafft"
+
+
+
+        // B L O G E I N T R A G
+
+    // nicht in API vorgesehen
+curl -X GET "http://localhost:8080/blogeintraege" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+
+curl -X GET "http://localhost:8080/blogeintraege/1/schlagworte" -H "accept: */*" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/blogeintraege/1/kommentare" -H "accept: */*" -H "Content-Type: multipart/form-data"
+//Schlagewort setzen funktioniert
+curl -X POST "http://localhost:8080/blogeintraege/6/schlagworte" -u RedakteurMustermann1@mail.com:RedpasAa1 -H "accept: */*" -H "Content-Type: multipart/form-data" -F "bezeichnung=Film"
+//  Kommentieren funktioniert
+curl -X POST "http://localhost:8080/blogeintraege/2/kommentare" -u mustermann7@mail.com:pasAa7 -H "accept: */*" -H "Content-Type: multipart/form-data" -F "text=Kommentar von mustermann7"
+//  Bewerten funktioniert
+curl -X POST "http://localhost:8080/blogeintraege/1/bewertung" -u mustermann1@mail.com:pasAa1 -H "accept: */*" -H "Content-Type: multipart/form-data" -F "punktzahl=3"
+
+curl -X DELETE "http://localhost:8080/blogeintraege/1" -u ChefredakteurMustermann1@mail.com:ChefRpas1 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+
+
+        // S C H L A G W O R T
+curl -X GET "http://localhost:8080/schlagworte" -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+
+
+
+
+        // B I L D E R
+curl -X GET "http://localhost:8080/bilder" -u RedakteurMustermann1@mail.com:RedpasAa1 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X POST "http://localhost:8080/bilder" -u RedakteurMustermann1@mail.com:RedpasAa1 -H "accept: */*" -H "Content-Type: multipart/form-data" -F "pfad=GURL/nach/Authentifizierung/Test_y.png" -F "bezeichnung=Neustes Bild" -F "aufnahmeort=geheim"
+curl -X GET "http://localhost:8080/bilder?bezeichnung=lan"  -u RedakteurMustermann1@mail.com:RedpasAa1 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/bilder?aufnahmeort=bEk" -u RedakteurMustermann1@mail.com:RedpasAa1 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+//funktioniert
+curl -X DELETE "http://localhost:8080/bilder/5" -u RedakteurMustermann1@mail.com:RedpasAa1 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+
+
+
+        //K O M M E N T A R E
+        //get by mail OK
+curl -X GET "http://localhost:8080/kommentare" -u mustermann2@mail.com:pasAa2 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/kommentare?text=a" -u mustermann3@mail.com:pasAa3 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+curl -X GET "http://localhost:8080/kommentare?text=s" -u mustermann3@mail.com:pasAa3 -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"
+//Kommentar aendern funktioniert
+curl -X PATCH "http://localhost:8080/kommentare/6?" -u mustermann3@mail.com:pasAa3 -H "accept: */*" -H "Content-Type: multipart/form-data" -F "text=Test ob API Kommentar n+1-te Aenderungt."
+
+
+
+//================================================================0
+curl -X GET "http://localhost:8080/personal" -L -H "accept: application/json;charset=UTF-8" -H "Content-Type: multipart/form-data"

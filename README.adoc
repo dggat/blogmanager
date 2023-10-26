@@ -1,0 +1,105 @@
+# SQLite Version 3.34.1
+
+## Kritische Entscheidungen
+
+- Die Daten in der Datenbank wurden leicht angepasst, damit die angegebenen Curls
+vernünftige Daten zurückliefern und entsprechende Nutzer für die Authentifizierung funktionieren.
+.. Alle Nutzer haben alle Blogeinträge gesehen.
+.. Blogeinträge von 1 bis 5 (einschließlich) sind Alben.
+.. Blogeinträge von 6 bis 8 (einschließlich) sind Produktrezensionen.
+
+- Nach Phase 3 sind alle Fremdschlüssel ON DELETE CASCADE, d.h. alle verbundene Einträge werden mitgelöscht.
+
+- PATCH, wenn es keinen Parameter außer 'required' eingegeben wird, wird BAD REQUEST geworfen
+
+- PATCH auf eine nicht vorhandene Ressource wird ein 404 Not Found geworfen.
+
+- PATCH, GET: wird nicht nach der Existenz eines Nutzers oder Chefredakteur, da die Identität durch Principal
+gewährleistet wird. Alle berechtigte Anwender müssen entweder als Nutzer oder Chefredakteur angemeldet werden.
+
+- DELETE auf eine nicht vorhandene Ressource wird ein 404 Not Found geworfen.
+
+- POST Requests liefern einen fiktiven Link für die Ressource zurück, die URL der neuen Ressource.
+
+- Allgemein @GET: es wird geprüft ob geg. Record in der Datenbank existiert, wenn das nicht edr Fall ist,
+dann wird 404 Not Found geworfen.
+
+## /nutzer
+
+@GET: Filterparameter sund QueryParameter
+
+@POST: Parameter sund FormDataParameter, wenn erforderliche Parameter nicht eingegeben werden, wird BedRequestException
+geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+
+## /redakteure
+@GET: Filterparameter sind QueryParameter, gesucht wird nach allen Nachnamen, die gegebenen Substring beinhalten.
+
+@POST: Parameter sund FormDataParameter, wenn erforderliche Parameter nicht eingegeben werden, wird BedRequestException
+geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+
+## /chefredakteur
+
+@POST: Parameter sund FormParameter, wenn erforderliche Parameter nicht eingegeben werden, wird BedRequestException
+geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+## /alben
+@GET: Filterparameter sund QueryParameter, wenn keine Parameter eingegeben werden, werden alle Alben angezeigt.
+Filterparameter können nicht kombiniert werden.
+
+@POST: Alle Parameter sind required bis auf `aenderungsdatum`, Parameter sind FormParameter, wenn welche benötigte
+Parameter fehlen, wird BedRequestException geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+
+## /produktrezension
+
+@GET: Filterparameter sind QueryParameter, gesucht wird nach allen Nachnamen, die gegebenen Substring beinhalten.
+
+@POST: Alle Parameter sind required bis auf `aenderungsdatum`, Parameter sind FormParameter, wenn welche benötigte
+Parameter fehlen, wird BedRequestException geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+
+## /blogeintraege/{bloeintrag}/schlagworte
+
+@GET: Filterparameter sind PathParameter, gesucht wird nach allen Nachnamen, die gegebenen Substring beinhalten.
+Wenn erforderliche Parameter nicht eingegeben werden, wird BedRequestException geworfen mit dem Text: "Es wurden
+Parameter erwartet."
+
+@POST: Alle Parameter sind required, Parameter sind FormParameter, wenn welche benötigte
+Parameter fehlen, wird BedRequestException geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+## /blogeintraege/{bloeintrag}/kommentare
+
+Hier wird dem Anwender auch die Id des Kommentar angezeigt. Grund: wenn `kommentarid` nicht im Jason Object
+enthalten ist dann, diese nichte dem Nutzer(KommentarController: /kommentare Gibt eigene Kommentare zurück)
+angezeigt werden.
+
+@GET: Filterparameter sind PathParameter, gesucht wird nach allen Nachnamen, die gegebenen Substring beinhalten.
+Wenn erforderliche Parameter nicht eingegeben werden, wird BedRequestException geworfen mit dem
+Text: "Es wurden Parameter erwartet."
+
+
+## /bilder
+
+@GET: Filterparameter sind QueryParameter, gesucht wird nach allen Nachnamen, die gegebenen Substring beinhalten.
+
+@POST: Alle Parameter sind required, Parameter sind FormParameter, wenn welche benötigte
+Parameter fehle, wird BedRequestException geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+@DELETE: Required Parameter ist PathParameter, wenn welcher benötigten
+Parameter fehlt, wird BedRequestException geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+
+## /kommentare
+
+@GET: sucht nach enthaltene Filterparameter(Substring).
+
+@PATH: Alle Parameter sind required, Parameter sind FormDataParameter, wenn welche benötigte
+Parameter fehlen, wird BedRequestException geworfen mit dem Text: "Es wurden Parameter erwartet."
+
+## /blogeintraege/{blogeintragid}
+
+@DELETE: Required Parameter `blogeintragid` PathParameter, wenn welche benötigte
+Parameter fehlen, wird BedRequestException geworfen mit dem Text: "Es wurden Parameter erwartet."
+
