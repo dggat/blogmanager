@@ -6,6 +6,7 @@
 .metadata
 bin/
 tmp/
+gradle/
 *.tmp
 *.bak
 *.swp
@@ -14,6 +15,7 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+.vscode
 
 # External tool builders
 .externalToolBuilders/
