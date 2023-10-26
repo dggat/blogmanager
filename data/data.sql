@@ -270,18 +270,3 @@ INSERT INTO Gehoert_zu VALUES('Filme', 3);
 INSERT INTO Gehoert_zu VALUES('Movie', 1);
 INSERT INTO Gehoert_zu VALUES('Movie', 2);
 INSERT INTO Gehoert_zu VALUES('Movie', 3);
-
---TRIGGER Test edit_blogeintrag
---UPDATE Blogeintrag SET Titel='New', Text='Letzte Aenderung: Sihe Änderungsdatum' WHERE id=2;
-
-
--- TRIGGER Test edit_Bild neuer Pfad von einem Bild, welches vom mehr als zwei Alben benutzt wird
---UPDATE Bild SET Pfad='kjakh.png' WHERE id = 2;
-
-
--- Trigger Test delete_Bild: Bild, welches vom mehr als zwei Alben benutzt wird
---DELETE FROM Bild WHERE id = 3;
-
-
---TRIGGER test Speicherung von 16 Bildern soll unmöglich sein
---INSERT INTO Enthaelt VALUES(1, 16);
